@@ -1,0 +1,8 @@
+---
+#- name: restart nginx
+#  service: name=nginx state=restarted
+  #  when: not nginx_use_service|bool
+
+- name: restart nginx
+  command: /usr/bin/env nginx -s reload
+  when: not nginx_use_service|bool

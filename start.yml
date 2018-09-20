@@ -1,0 +1,15 @@
+---
+ - hosts: 
+     digitalocean
+
+   roles:
+      - droplet
+
+ - hosts: online
+   remote_user: root
+
+   roles: 
+      - epel   
+      - pip
+      - docker
+      - container
