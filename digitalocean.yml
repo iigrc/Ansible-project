@@ -1,0 +1,38 @@
+---
+- hosts: digitalocean
+
+  vars:
+    do_token: 8d6c81f32ad7f01c2c98a3dd3846b1d34ec87f8e46eb12a2b6db2f37f725b361
+
+  tasks:
+
+  - name: ensure ssh key exists
+    user: >
+      name={{ ansible_user_id }}
+      generate_ssh_key=yes
+      ssh_key_file=.ssh/id_rsa
+
+  - name: ensure key exists at DigitalOcean
+    digital_ocean: >
+      state=present
+      command=ssh
+      name=Work
+      ssh_pub_key={{ lookup('file', '~/.ssh/id_rsa.pub') }}
+      api_token={{ do_token }}
+    register: Work
+
+  - name: Create a droplet
+    digital_ocean: >
+      state=present
+      command=droplet
+      name=host.ivanigrc.from.hr
+      unique_name=yes
+      size_id=1gb
+      region_id=lon1
+      image_id=centos-7-x64
+      ssh_key_ids={{ Work.ssh_key.id }}
+      api_token={{ do_token }}
+    register: Website
+
+  - debug: msg= "IP is {{ Website.droplet.ip_address }}"
+

@@ -1,0 +1,53 @@
+---
+
+  - name: ensure ssh key exists
+    user: >
+      name={{ ansible_user_id }}
+      generate_ssh_key=yes
+      ssh_key_file=.ssh/id_rsa
+
+  - name: ensure key exists at DigitalOcean
+    digital_ocean: >
+      state=present
+      command=ssh
+      name=Work
+      ssh_pub_key={{ lookup('file', '~/.ssh/id_rsa.pub') }}
+      api_token={{ do_token }}
+    register: Work
+
+  - name: Create a droplet
+    digital_ocean: >
+      state=present
+      command=droplet
+      name=host.ivanigrc.from.hr
+      unique_name=yes
+      size_id=1gb
+      region_id=lon1
+      image_id=centos-7-x64
+      ssh_key_ids={{ Work.ssh_key.id }}
+      api_token={{ do_token }}
+    register: Website
+
+
+  - name: print info about my_droplet
+    local_action:
+      module:  debug
+           msg= "ID is {{ Website.droplet.id }} IP is {{ Website.droplet.ip_address }}"
+                                                  
+  - name: Add new droplet to host group
+    local_action: add_host hostname={{ Website.droplet.ip_address }} groupname=online
+                                                    
+
+#  - name: Wait for SSH to come up
+#    local_action: wait_for host={{ Website.droplet.ip_address }} port=22 delay=60 timeout=320 state=started
+
+#  - name: Install python-pip
+#    yum:
+#      pkg: "{{ item }}"
+#      state: latest
+#    with_items:
+#      - python3-pip
+#      - pip
+
+#  - debug: msg="IP is {{ Website.droplet.ip_address }}"
+
