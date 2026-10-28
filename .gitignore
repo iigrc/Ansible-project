@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+*.retry
+*_bkp
+*.bak
+*~
+*.pem
+*.key
+.vault-password*
+.DS_Store
